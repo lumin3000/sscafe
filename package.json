@@ -1,0 +1,13 @@
+{
+  "name": "sscafe",
+  "description": "An awesome real time application",
+  "version": "0.1.0",
+  "author": "Me <me@mydomain.com>",
+  "engines": { "node": ">= 0.4.0 < 0.5.0" },
+  "dependencies": {
+    "socketstream": "latest"
+	  ,"mongoose": "latest"
+	  ,"coffeekup": "latest"
+	  ,"connect":   "= 1.7.0"
+  }
+}
