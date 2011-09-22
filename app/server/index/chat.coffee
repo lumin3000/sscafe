@@ -8,7 +8,7 @@ doNothing = ()->
 
 Chat = ( ->
   historyMessages = []
-  limited = 5
+  limited = 100
   add: (message)->
     [
       doNothing
