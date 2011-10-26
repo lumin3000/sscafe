@@ -1,9 +1,9 @@
 {
   "name": "sscafe",
-  "description": "An awesome real time application",
+  "description": "a chat room demo in socketstream",
   "version": "0.1.0",
-  "author": "Me <me@mydomain.com>",
-  "engines": { "node": ">= 0.4.0 < 0.5.0" },
+  "author": "Jerry Sun <sjerrys@gmail.com>",
+  "engines": { "node": ">= 0.4.9 < 0.5.0" },
   "dependencies": {
     "socketstream": "latest"
 	  ,"mongoose": "latest"
