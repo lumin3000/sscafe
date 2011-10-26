@@ -20,6 +20,9 @@ flashMessage = (messages)->
       ,5000
   ,messages:messages.join(',')
 
+htmlEscape = (str)->
+  str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+
 #model
 model = {}
 
@@ -27,7 +30,7 @@ model = {}
 validatePresenceOf = (value)->
   value && value.length
 validatesLengthOfName = (value)->
-  20>= value.length >0
+  40>= value.length >0
 validatesLengthOfPassword = (value)->
   64>= value.length >3
 validatesFormatOfEmail =(value)->
@@ -68,7 +71,7 @@ Auth.pre 'save', (next) ->
   v[+!!validatePresenceOf @password] 'password can not be empty' #'请填写密码' 
   v[+!!validatesFormatOfEmail @email] 'email format is not correct' #'邮箱格式不正确'
   v[+!!validatePresenceOf @email] 'email can not be empty' #'请填写邮箱'
-  v[+!!validatesLengthOfName @name] 'length of username must be 1-20' #'用户名长度1-20'
+  v[+!!validatesLengthOfName @name] 'length of username must be 1-40' #'用户名长度1-40'
   v[+!!validatePresenceOf @name] 'username can not be empty' #'请填写用户名' 
   next _error
   console.log 'auth pre saved:'+_error
@@ -208,6 +211,7 @@ exports.actions =
         command:'regist'
         tmpl:ck.render(view.new, title:'Sign up',hardcode: viewHelper)
     create:(param,renderView)->
+      param.name = htmlEscape param.name
       auth = new Auth(param)
       console.log "creating new user: #{param.name} - #{param.email}"
       auth.save (err)->
