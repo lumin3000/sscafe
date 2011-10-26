@@ -14,8 +14,6 @@ flashMessage = (messages)->
   ck.render ()->
     div '.ui-widget.flash',->
       @messages
-    div '.ui-widget.flash',->
-      @messages
     coffeescript ->
       setTimeout ()->
         $('.flash').fadeOut()
@@ -66,12 +64,12 @@ Auth.pre 'save', (next) ->
   failed=(errString)->_error=new Error errString
   passed=(str)->
   v = [failed,passed]
-  v[+!!validatesLengthOfPassword @password] '密码长度4-64'
-  v[+!!validatePresenceOf @password] '请填写密码' 
-  v[+!!validatesFormatOfEmail @email] '邮箱格式不正确'
-  v[+!!validatePresenceOf @email] '请填写邮箱'
-  v[+!!validatesLengthOfName @name] '用户名长度1-20'
-  v[+!!validatePresenceOf @name] '请填写用户名' 
+  v[+!!validatesLengthOfPassword @password] 'length of password must be 4-64' #'密码长度4-64'
+  v[+!!validatePresenceOf @password] 'password can not be empty' #'请填写密码' 
+  v[+!!validatesFormatOfEmail @email] 'email format is not correct' #'邮箱格式不正确'
+  v[+!!validatePresenceOf @email] 'email can not be empty' #'请填写邮箱'
+  v[+!!validatesLengthOfName @name] 'length of username must be 1-20' #'用户名长度1-20'
+  v[+!!validatePresenceOf @name] 'username can not be empty' #'请填写用户名' 
   next _error
   console.log 'auth pre saved:'+_error
   
@@ -116,10 +114,16 @@ sessionsView =( ->
   new:->
     h1 @title
     form method: 'post', action: 'login', ->
-      textbox id: 'email'
-      passwordbox id: 'password'
+      div ->
+        label 'email:&nbsp;'
+        textbox id: 'email'
+      div ->
+        label 'password:&nbsp;'
+        passwordbox id: 'password'
+      div ->
+      label '&nbsp;'
       button @title
-      a '#registlink', href: '#regist', -> '注册'
+      a '#registlink', href: '#regist', -> '&nbsp;Regist' #'注册'
   create:->
   edit:->
   update:->
@@ -132,11 +136,19 @@ userView =( ->
   new:->
     h1 @title
     form method: 'post', action: 'register', ->
-      textbox id: 'name'
-      textbox id: 'email'
-      passwordbox id: 'password'
-      button @title
-      a '#loginlink', href: '#login', -> '登录'
+      div ->
+        label 'username:&nbsp;'
+        textbox id: 'name'
+      div ->
+        label 'email:&nbsp;'
+        textbox id: 'email'
+      div ->
+        label 'password:&nbsp;'   
+        passwordbox id: 'password'
+      div ->
+        label '&nbsp;'    
+        button @title
+        a '#loginlink', href: '#login', -> '&nbsp;Login' #'登录'
   create:->
   edit:->
   update:->
@@ -161,7 +173,7 @@ exports.actions =
     new:(str,next)->
       next 
         command:'login'
-        tmpl:ck.render(view.new, title:'登录',hardcode: viewHelper)      
+        tmpl:ck.render(view.new, title:'Login',hardcode: viewHelper)      
     create:(param,renderView)->
       self = this
       authenticated = (str,auth)->
@@ -170,7 +182,7 @@ exports.actions =
           loginToken.save ()->
             renderView
               command:'loggedin'
-              tmpl:flashMessage("#{session.attributes.n}，登录成功。")+'<a href="#" onclick="Cafe.userlogout();return false">退出</a>'
+              tmpl:flashMessage("#{session.attributes.n}, longined.")+'<a href="#" onclick="Cafe.userlogout();return false">Exit</a>'
               afterCommand:
                 name:'setCookie'
                 param:
@@ -180,7 +192,7 @@ exports.actions =
           console.log "user logined #{session.user_id}"
       authFail = (err,next)->
         console.log "login_fail"
-        renderView {command:'loginError',tmpl:"用户名或密码不正确，请重新输入"}
+        renderView {command:'loginError',tmpl:"username or password is not correct."}
       authPassword= (auth,next)->
         next auth.authenticate param.password
       authEmail = (email,next)->
@@ -194,20 +206,19 @@ exports.actions =
     new:(str,next)->
       next 
         command:'regist'
-        tmpl:ck.render(view.new, title:'注册',hardcode: viewHelper)
+        tmpl:ck.render(view.new, title:'Sign up',hardcode: viewHelper)
     create:(param,renderView)->
       auth = new Auth(param)
       console.log "creating new user: #{param.name} - #{param.email}"
       auth.save (err)->
         console.log "new user #{auth.name} created:"+(+!!err)
         saveSucceed = ()->
-          console.log "regist?"+(err ||'noerr')
           loginToken = new LoginToken { email: auth.email }
           setSession session,auth, ()->
             loginToken.save ()->
               renderView
                 command:'registed'
-                tmpl:flashMessage("#{session.attributes.n}，注册成功。")+'<a href="#" onclick="Cafe.userlogout();return false">退出</a>'
+                tmpl:flashMessage("#{session.attributes.n}, Registed")+'<a href="#" onclick="Cafe.userlogout();return false">Exit</a>'
                 afterCommand:
                   name:'setCookie'
                   param:
@@ -230,7 +241,7 @@ exports.actions =
           cookieToken.save ()->
             renderView
               command:'loggedin'
-              tmpl:flashMessage("#{session.attributes.n}，欢迎回来～")+'<a href="#" onclick="Cafe.userlogout();return false">退出</a>'
+              tmpl:flashMessage("#{session.attributes.n}, Welcome Back~")+'<a href="#" onclick="Cafe.userlogout();return false">Exit</a>'
               afterCommand:
                 name:'setCookie'
                 param:
@@ -242,11 +253,9 @@ exports.actions =
         console.log "logintoken_fail"
         self.new '',renderView
       authFromAuth = (email,next)->
-        #console.log "logintoken5"+JSON.stringify(email,null,'\t')
         Auth.findOne email,next
       authFromCookie = (clientcookie,next)->
         cookie = JSON.parse clientcookie
-        #console.log "clientcookie:"+cookie
         LoginToken.findOne cookie,next
       cookieFound = ->
         authFromCookie param.logintoken,(err, token)->
